@@ -1,17 +1,50 @@
-import express from 'express';
+import dotenv from 'dotenv';
+import connectDB from './db/index.js';
 
-const app = express();
-
-const PORT = 8000;
-
-app.get('/',(req,res)=>{
-    console.log(req.url);
-    res.send('<h1>Welcome to app</h1>');
+dotenv.config({
+    path: './env'
 });
 
-app.get('/data',(req,res)=>{
-    console.log(req.url);
-    res.send('Hello world');
-})
+connectDB();
 
-app.listen(PORT || process.env.PORT);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import mongoose from "mongoose";
+// import { DB_NAME } from "./constants";
+// import express from 'express';
+
+// const app = express();
+
+// ;(async () => {
+//     try {
+//         console.log(process.env.MONGODB_URI)
+//         await mongoose.connect(`${process.env.MONGODB_URI}/${DB_NAME}`);
+//         app.on('error', (err) => {
+//             console.error(err);
+//             throw err;
+//         });
+
+//         app.listen(process.env.PORT, ()=>{
+//             console.log(`App is listening at ${process.env.PORT}`)
+//         })
+
+//     } catch (error) {
+//         console.error(error);
+//         throw error;
+//     }
+// })();
