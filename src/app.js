@@ -23,4 +23,12 @@ app.use(express.static('public'));
 //to handle the cookies
 app.use(cookieParser());
 
+
+//route path (intentionally written in between in b/w)
+import userRoute from './routes/user.route.js'
+
+//route register
+app.use('/api/v1/users', userRoute);
+
+
 export { app };
