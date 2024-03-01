@@ -92,7 +92,7 @@ const registerUser = asyncHandler(async(req, res) => {
 });
 
 const loginUser = asyncHandler(async (req, res) => {
-
+    
     const { email, userName, password } = req.body;
 
     if(!email && !userName) {
@@ -146,6 +146,11 @@ const logoutUser = asyncHandler(async (req, res) => {
         },
         { new: true }
     );
+
+    const cookieOptions = {
+        httpOnly: true,
+        secure: true
+    };
 
     return res
     .status(200)
