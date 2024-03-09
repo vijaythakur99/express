@@ -339,5 +339,10 @@ export {
     registerUser,
     loginUser,
     logoutUser,
-    refreshAccessToken
+    refreshAccessToken,
+    updatePassword,
+    getCurrentUser,
+    updateUserDetails,
+    updateAvatarImage,
+    updateCoverImage,
 }
