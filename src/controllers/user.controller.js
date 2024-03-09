@@ -197,6 +197,144 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     }
 });
 
+const updatePassword = asyncHandler(async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+
+    if(!oldPassword) {
+        throw new ApiError(400, 'Old password is mandatory');
+    }
+    
+    if(!newPassword) {
+        throw new ApiError(400, 'New password is mandatory');
+    }
+
+    const user = await User.findById(req.user?._id);
+
+    const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
+
+    if(!isPasswordCorrect) {
+        throw new ApiError(400, 'Invalid password');
+    }
+
+    user.password = newPassword;
+    await user.save({
+        validateBeforeSave: false
+    });
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200, {}, 'Password changed successfully')
+    );
+});
+
+const getCurrentUser = asyncHandler (async (req, res) => {
+    if(!req?.user) {
+        throw new ApiError(400, 'Unauthrized request');
+    }
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200, req.user, 'One user found')
+    )
+});
+
+const updateUserDetails = asyncHandler (async (req, res) => {
+    const { fullName, email } = req.body;
+
+    if(!fullName || !email) {
+        throw new ApiError(500, 'fullName and email fields are mandatory');
+    }
+
+    const user = await User.findByIdAndUpdate(
+            req.user?._id,
+            {
+                $set: {
+                    fullName,
+                    email
+                }
+            },
+            {
+                new: true
+            }
+        )
+        .select('-password -refreshToken');
+
+    if(!user) {
+        throw new ApiError(400, 'Error while fetching the user from DB');
+    }
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200, user, 'User details updated successfully')
+    );
+
+});
+
+const updateAvatarImage = asyncHandler (async (req, res) => {
+    const avatarLocalPath = req.file?.avatar;
+
+    if(!avatarLocalPath) {
+        throw new ApiError(400, 'Avatar is mandatory');
+    }
+
+    const avatar = await uploadOnCloudinary(avatarLocalPath);
+
+    if(!avatar?.url) {
+        throw new ApiError(400, 'Error while uploading on cloudinary');
+    }
+
+    await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $set: {
+                avatar: avatar.url
+            }
+        },
+        { new: true }
+    )
+    .select('-password -refreshToken');
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200, {}, 'Avatar updated successfully')
+    );
+});
+
+const updateCoverImage = asyncHandler (async (req, res) => {
+    const coverImageLocalPath = req.file?.coverImage;
+
+    if(!coverImageLocalPath) {
+        throw new ApiError(400, 'Cover image is mandatory');
+    }
+
+    const coverImage = await uploadOnCloudinary(coverImageLocalPath);
+
+    if(!coverImage?.url) {
+        throw new ApiError(400, 'Error while uploading on cloudinary');
+    }
+
+    await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $set: {
+                coverImage: coverImage.url
+            }
+        },
+        { new: true }
+    )
+    .select('-password -refreshToken');
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200, {}, 'Cover image updated successfully')
+    );
+});
+
 export { 
     registerUser,
     loginUser,
