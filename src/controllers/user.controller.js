@@ -1,7 +1,7 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { deleteFromCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { COOKIE_OPTIONS } from '../utils/cookie-options.js';
 import jwt from "jsonwebtoken";
@@ -305,7 +305,7 @@ const updateAvatarImage = asyncHandler (async (req, res) => {
 });
 
 const updateCoverImage = asyncHandler (async (req, res) => {
-    const coverImageLocalPath = req.file?.coverImage;
+    const coverImageLocalPath = req.file?.path;
 
     if(!coverImageLocalPath) {
         throw new ApiError(400, 'Cover image is mandatory');
@@ -327,6 +327,9 @@ const updateCoverImage = asyncHandler (async (req, res) => {
         { new: true }
     )
     .select('-password -refreshToken');
+    
+    //delete old coverImage
+    await deleteFromCloudinary(req.user?.coverImage);
 
     return res
     .status(200)
